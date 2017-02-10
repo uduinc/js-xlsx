@@ -83,3 +83,4 @@ var XLMLPatternTypeMap = {
 	"ThinHorzCross": "lightGrid"
 };
 
+function px2pt(px) { return px * 72 / 96; }

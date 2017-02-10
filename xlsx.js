@@ -4644,6 +4644,7 @@ var XLMLPatternTypeMap = {
 	"ThinHorzCross": "lightGrid"
 };
 
+function px2pt(px) { return px * 72 / 96; }
 var styles = {}; // shared styles
 
 var themes = {}; // shared themes
@@ -7823,12 +7824,27 @@ function write_ws_xml_data(ws, opts, idx, wb) {
 	for(R = range.s.r; R <= range.e.r; ++R) {
 		r = [];
 		rr = encode_row(R);
+		console.log( 'Writing row', R );
 		for(C = range.s.c; C <= range.e.c; ++C) {
 			ref = cols[C] + rr;
 			if(ws[ref] === undefined) continue;
 			if((cell = write_ws_xml_cell(ws[ref], ref, ws, opts, idx, wb)) != null) r.push(cell);
 		}
-		if(r.length > 0) o[o.length] = (writextag('row', r.join(""), {r:rr}));
+		if(r.length > 0) {
+			var params = {r:rr};
+			if(typeof ws['!rows'] !== 'undefined' && ws['!rows'].length > R) {
+				var row = ws['!rows'][R];
+				if ( row ) {
+					if (row.hidden) params.hidden = 1;
+					var height = -1;
+					if (row.hpx) height = px2pt(row.hpx);
+					else if (row.hpt) height = row.hpt;
+					if (height > -1) { params.ht = height; params.customHeight = 1; }
+				}
+			};
+			console.log( 'Writing row props...', params );
+			o[o.length] = (writextag('row', r.join(""), params));
+		}
 	}
 	return o.join("");
 }
