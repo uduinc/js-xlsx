@@ -337,12 +337,14 @@ function write_ws_xml(idx, opts, wb) {
 			sqref: 'A2'
 		});
 		var sheetView = writextag('sheetView', freezePane+selection,  {
+			zoomScale: opts.zoomScale === undefined ? '100' : opts.zoomScale,
 		    showGridLines: opts.showGridLines == false ? '0' : '1',
 		    tabSelected: opts.tabSelected === undefined ? '0' :  opts.tabSelected,  // see issue #26, need to set WorkbookViews if this is set
 		    workbookViewId: opts.workbookViewId === undefined ? '0' : opts.workbookViewId
 		  });
 	} else {
 		sheetView = writextag('sheetView', null,  {
+			zoomScale: opts.zoomScale === undefined ? '100' : opts.zoomScale,
 		    showGridLines: opts.showGridLines == false ? '0' : '1',
 		    tabSelected: opts.tabSelected === undefined ? '0' :  opts.tabSelected,  // see issue #26, need to set WorkbookViews if this is set
 		    workbookViewId: opts.workbookViewId === undefined ? '0' : opts.workbookViewId
