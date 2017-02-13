@@ -285,7 +285,6 @@ function write_ws_xml_data(ws, opts, idx, wb) {
 	for(R = range.s.r; R <= range.e.r; ++R) {
 		r = [];
 		rr = encode_row(R);
-		console.log( 'Writing row', R );
 		for(C = range.s.c; C <= range.e.c; ++C) {
 			ref = cols[C] + rr;
 			if(ws[ref] === undefined) continue;
@@ -303,7 +302,6 @@ function write_ws_xml_data(ws, opts, idx, wb) {
 					if (height > -1) { params.ht = height; params.customHeight = 1; }
 				}
 			};
-			console.log( 'Writing row props...', params );
 			o[o.length] = (writextag('row', r.join(""), params));
 		}
 	}
@@ -323,11 +321,30 @@ function write_ws_xml(idx, opts, wb) {
 	var ref = ws['!ref']; if(ref === undefined) ref = 'A1';
 	o[o.length] = (writextag('dimension', null, {'ref': ref}));
 
-  var sheetView = writextag('sheetView', null,  {
-    showGridLines: opts.showGridLines == false ? '0' : '1',
-    tabSelected: opts.tabSelected === undefined ? '0' :  opts.tabSelected,  // see issue #26, need to set WorkbookViews if this is set
-    workbookViewId: opts.workbookViewId === undefined ? '0' : opts.workbookViewId
-  });
+	if ( opts.freezeFirstRow ) {
+		var freezePane = writextag('pane', null, {
+			ySplit: '1',
+			topLeftCell: 'A2',
+			activePane: 'bottomLeft',
+			state: 'frozen'
+		});
+		var selection = writextag('selection', null, {
+			pane: 'bottomLeft',
+			activeCell: 'A2',
+			sqref: 'A2'
+		});
+		var sheetView = writextag('sheetView', freezePane+selection,  {
+		    showGridLines: opts.showGridLines == false ? '0' : '1',
+		    tabSelected: opts.tabSelected === undefined ? '0' :  opts.tabSelected,  // see issue #26, need to set WorkbookViews if this is set
+		    workbookViewId: opts.workbookViewId === undefined ? '0' : opts.workbookViewId
+		  });
+	} else {
+		sheetView = writextag('sheetView', null,  {
+		    showGridLines: opts.showGridLines == false ? '0' : '1',
+		    tabSelected: opts.tabSelected === undefined ? '0' :  opts.tabSelected,  // see issue #26, need to set WorkbookViews if this is set
+		    workbookViewId: opts.workbookViewId === undefined ? '0' : opts.workbookViewId
+		  });
+	}
   o[o.length] = writextag('sheetViews', sheetView);
 
 	if(ws['!cols'] !== undefined && ws['!cols'].length > 0) o[o.length] = (write_ws_xml_cols(ws, ws['!cols']));
